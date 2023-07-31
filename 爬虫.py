@@ -10,6 +10,10 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 
 def mkdir(path):
+    '''
+    :param path:文件夹路径 会自动递归生成文件夹
+    :return: 无返回值
+    '''
     # os.path.exists 函数判断文件夹是否存在
     folder = os.path.exists(path)
 
@@ -24,6 +28,9 @@ def mkdir(path):
 
 
 def get_danmu():
+    '''
+    :return: 将弹幕保存一个csv文件
+    '''
     danmu_data = []
     for i in range(0, 600000+30000, 30000):
         url = f'https://dm.video.qq.com/barrage/segment/t0046qdufmw/t/v1/{i}/{i+30000}'
@@ -35,10 +42,10 @@ def get_danmu():
         for comment in json_data:
             danmu_data.append(comment['content'])
     save_csv = pd.DataFrame(data=danmu_data)
-    print(save_csv.head())
+    # print(save_csv.head())
+    #保存为csv
     save_csv.to_csv(path_or_buf="./test.csv", encoding="utf_8_sig")
     time.sleep(2)
-# get_danmu()
 
 
 def dorama_url_get():
@@ -54,19 +61,26 @@ def dorama_url_get():
 pinglun_data = []
 
 
-def Iqiyi(last_id,pinglun_data):
+def Iqiyi(last_id, pinglun_data):
+    '''
+
+    :param last_id:评论的最后一个id在接口请求中能够看到
+    :param pinglun_data: 存放数据的list
+    :return: 无return值 保存为一个csv文件
+    '''
 
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
     url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7967612554814600&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
     Iqiyi_get = requests.get(url,headers=headers)
-
-    u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}'
+    # 获取的数据被js外边包了一个壳 需要对数据进行处理后才能被json.loads解析
+    u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}' #删除获取json的外壳
+    # 这个壳我研究了很长时间 死活都没办法被json解析 后来我发现居然是因为我删除的时候多删除了一个括号MMP
     json_data = json.loads(u1.encode("utf-8"))["data"]["comments"]
     for comment in json_data:
         print(comment["id"])
         if 'content' in comment.keys():
             pinglun_data.append(comment['content'])
-        i = last_id
+        #更新last_id
         last_id = comment['id']
     print(len(pinglun_data))
 
@@ -74,16 +88,19 @@ def Iqiyi(last_id,pinglun_data):
     if len(pinglun_data) < 700 :
         time.sleep(0.5)
         Iqiyi(last_id, pinglun_data)
-        if last_id == i:
-            return
+        # 递归
+
     else:
         return
-    # Iqiyi("4620174475752421",pinglun_data)
+    # 保存为csv
     df = pd.DataFrame(pinglun_data)
     df.to_csv('./pinglun.csv')
 
 
 def dorama_data_get():
+    '''
+    :return: 存放有所有电视剧名称，简介，标签，日期，导演，演员，电视剧地址，电视剧海报地址的List
+    '''
     alldata_list = []
     try:
         for i in range(1,5):
@@ -98,6 +115,8 @@ def dorama_data_get():
                 print(data_list)
                 alldata_list.append(data_list)
                 time.sleep(0.5)
+                ## 这里是尝试使用接口获取数据,但是爱奇艺的接口被加密过,我没有办法自动获取接口进行爬取搁置在此
+
                 # dorama_data = requests.get(comment["page_url"], headers=headers).text
                 # entity_id = comment["firstId"]
                 # data_url = f"https://mesh.if.iqiyi.com/tvg/pcw/base_info?entity_id={entity_id}&timestamp=1690514642425&src=pcw_tvg&vip_status=0&vip_type=&auth_cookie=&device_id=e5debc58fe819b25ca6de2fe991d92cc&user_id=&app_version=5.0.0&scale=148&sign=A2313B80BB73DF0F8238321D05E43B39"
@@ -132,12 +151,7 @@ def TXvideourl_get():
     res = obj.finditer(data)
     for i in res:
         print(i)
-    # soup = BeautifulSoup(data, "lxml")
 
-    # soup.select(".videolist_container_inner ")
-    # for i in soup:
-    #     print(i)
-    # print(data)
 
 
 
@@ -147,6 +161,7 @@ if __name__ == "__main__":
     dorama_data_get()
     # TXvideourl_get()
     # dorama_url_get()
+    # Iqiyi("4620174475752421", pinglun_data)
 
 
 
