@@ -9,3 +9,22 @@
 - matplotlib==3.7.1
 - requests==2.28.1
 - beautifulsoup4==4.11.1
+
+#### 运行
+
+1. 克隆代码到本地
+
+   ```
+   git clone https://github.com/YinHan-Zhang/Mutual-AI
+   ```
+
+2. 安装依赖
+
+   ```
+   pip install -r requriements.txt
+   ```
+
+3. 找到需要的函数运行
+
+​	
+

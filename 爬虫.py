@@ -49,13 +49,22 @@ def get_danmu():
 
 
 def dorama_url_get():
-    url = "https://v.qq.com/channel/tv/list?filter_params=ifeature%3D-1%26iarea%3D-1%26iyear%3D2023%26ipay%3D-1%26sort%3D75&page_id=channel_list_second_page"
-    dorama_url = requests.get(url=url,headers=headers)
-    dorama_text = dorama_url.text
-    print(dorama_url.text)
-    bs = BeautifulSoup(dorama_text,"html.parser")
-    a = bs.select("card-list-wrap a")
-    print(a)
+    # url_1 = "https://v.qq.com/channel/tv/list?filter_params=ifeature%3D-1%26iarea%3D814%26iyear%3D2023%26ipay%3D-1%26sort%3D75&page_id=channel_list_second_page"
+    url = "https://pbaccess.video.qq.com/trpc.vector_layout.page_view.PageService/getPage?video_appid=3000010"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183'}
+    cookies = {"Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
+    dorama_url = requests.post(url=url,headers=headers,cookies=cookies,params={"page_params":{
+  "page_id": "100113",
+  "page_type": "channel",
+  "skip_privacy_types": "0",
+  "ad-through-tag": ""
+}}).text
+
+    print(dorama_url)
+    json.loads(dorama_url)
+
+    dorama_text = dorama_url
+
 
 
 pinglun_data = []
@@ -68,9 +77,8 @@ def Iqiyi(last_id, pinglun_data):
     :param pinglun_data: 存放数据的list
     :return: 无return值 保存为一个csv文件
     '''
-
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
-    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7967612554814600&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
+    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7276947759884200&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
     Iqiyi_get = requests.get(url,headers=headers)
     # 获取的数据被js外边包了一个壳 需要对数据进行处理后才能被json.loads解析
     u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}' #删除获取json的外壳
@@ -85,7 +93,7 @@ def Iqiyi(last_id, pinglun_data):
     print(len(pinglun_data))
 
 
-    if len(pinglun_data) < 700 :
+    if len(pinglun_data) < 1000 :
         time.sleep(0.5)
         Iqiyi(last_id, pinglun_data)
         # 递归
@@ -94,7 +102,7 @@ def Iqiyi(last_id, pinglun_data):
         return
     # 保存为csv
     df = pd.DataFrame(pinglun_data)
-    df.to_csv('./pinglun.csv')
+    df.to_csv('./pinglun_1.csv')
 
 
 def dorama_data_get():
@@ -109,7 +117,9 @@ def dorama_data_get():
             data = requests.get(url=url,headers=headers)
             json_data = json.loads(data.text)["data"]
             for comment in json_data:
-                data_list = [comment["title"], comment["description"], comment["tag"], comment["showDate"],[i["name"] for i in comment['creator']], [i["name"] for i in comment["contributor"]],comment["page_url"],comment["image_url_normal"]]
+                data_list = [comment["title"], comment["description"], comment["tag"], comment["showDate"],
+                             [i["name"] for i in comment['creator']], [i["name"] for i in comment["contributor"]]
+                            ,comment["page_url"],comment["image_url_normal"],comment["time_length"],comment["hot_score"]]
                 print(comment["page_url"])
                 print(comment["image_url_normal"])
                 print(data_list)
@@ -136,10 +146,10 @@ def dorama_data_get():
     except:
         mkdir("./爱奇艺数据/电视剧海报")
         for name in alldata_list:
-            picture_resp = requests.get(name[-1])
+            picture_resp = requests.get(name[-3])
             with open(f"./爱奇艺数据/电视剧海报/{name[0]}.jpg", mode='wb') as f:
                 f.write(picture_resp.content)
-        df = pd.DataFrame(alldata_list, columns=["title","description","tag","showDate", 'creators', "contributor", "page_url","img_url"])
+        df = pd.DataFrame(alldata_list, columns=["title","description","tag","showDate", 'creators', "contributor", "page_url","img_url","time_length","hot_score"])
         df.to_csv("./爱奇艺数据/爱奇艺热播.csv")
         return alldata_list
 def TXvideourl_get():
@@ -158,10 +168,11 @@ def TXvideourl_get():
 
 
 if __name__ == "__main__":
-    dorama_data_get()
+    # dorama_url_get()
+    # dorama_data_get()
     # TXvideourl_get()
     # dorama_url_get()
-    # Iqiyi("4620174475752421", pinglun_data)
-
+    # Iqiyi("&", pinglun_data)
+    dorama_data_get()
 
 
