@@ -54,7 +54,7 @@ def dorama_url_get():
 pinglun_data = []
 
 
-def Iqiyi(last_id,pinglun_data):
+def Iqiyi(last_id, pinglun_data):
 
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
     url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7967612554814600&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
