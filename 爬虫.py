@@ -42,7 +42,8 @@ def get_danmu():
         for comment in json_data:
             danmu_data.append(comment['content'])
     save_csv = pd.DataFrame(data=danmu_data)
-    print(save_csv.head())
+    # print(save_csv.head())
+    #保存为csv
     save_csv.to_csv(path_or_buf="./test.csv", encoding="utf_8_sig")
     time.sleep(2)
 
@@ -72,13 +73,14 @@ def Iqiyi(last_id, pinglun_data):
     url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7967612554814600&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
     Iqiyi_get = requests.get(url,headers=headers)
     # 获取的数据被js外边包了一个壳 需要对数据进行处理后才能被json.loads解析
-    u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}'
+    u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}' #删除获取json的外壳
+    # 这个壳我研究了很长时间 死活都没办法被json解析 后来我发现居然是因为我删除的时候多删除了一个括号MMP
     json_data = json.loads(u1.encode("utf-8"))["data"]["comments"]
     for comment in json_data:
         print(comment["id"])
         if 'content' in comment.keys():
             pinglun_data.append(comment['content'])
-        i = last_id
+        #更新last_id
         last_id = comment['id']
     print(len(pinglun_data))
 
@@ -86,11 +88,11 @@ def Iqiyi(last_id, pinglun_data):
     if len(pinglun_data) < 700 :
         time.sleep(0.5)
         Iqiyi(last_id, pinglun_data)
-        if last_id == i:
-            return
+        # 递归
+
     else:
         return
-    # Iqiyi("4620174475752421",pinglun_data)
+    # 保存为csv
     df = pd.DataFrame(pinglun_data)
     df.to_csv('./pinglun.csv')
 
@@ -113,7 +115,7 @@ def dorama_data_get():
                 print(data_list)
                 alldata_list.append(data_list)
                 time.sleep(0.5)
-                ## 这里是尝试使用接口获取数据 ，但是爱奇艺的接口被加密过,我没有办法自动获取接口进行爬取搁置在此
+                ## 这里是尝试使用接口获取数据,但是爱奇艺的接口被加密过,我没有办法自动获取接口进行爬取搁置在此
 
                 # dorama_data = requests.get(comment["page_url"], headers=headers).text
                 # entity_id = comment["firstId"]
@@ -149,12 +151,7 @@ def TXvideourl_get():
     res = obj.finditer(data)
     for i in res:
         print(i)
-    # soup = BeautifulSoup(data, "lxml")
 
-    # soup.select(".videolist_container_inner ")
-    # for i in soup:
-    #     print(i)
-    # print(data)
 
 
 
@@ -164,6 +161,7 @@ if __name__ == "__main__":
     dorama_data_get()
     # TXvideourl_get()
     # dorama_url_get()
+    # Iqiyi("4620174475752421", pinglun_data)
 
 
 
