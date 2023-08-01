@@ -5,6 +5,7 @@ import time
 from bs4 import BeautifulSoup
 import re
 import os
+from selenium import webdriver
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183'}
 
@@ -48,22 +49,28 @@ def get_danmu():
     time.sleep(2)
 
 
-def dorama_url_get():
-    # url_1 = "https://v.qq.com/channel/tv/list?filter_params=ifeature%3D-1%26iarea%3D814%26iyear%3D2023%26ipay%3D-1%26sort%3D75&page_id=channel_list_second_page"
-    url = "https://pbaccess.video.qq.com/trpc.vector_layout.page_view.PageService/getPage?video_appid=3000010"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183'}
-    cookies = {"Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
-    dorama_url = requests.post(url=url,headers=headers,cookies=cookies,params={"page_params":{
-  "page_id": "100113",
-  "page_type": "channel",
-  "skip_privacy_types": "0",
-  "ad-through-tag": ""
-}}).text
-
-    print(dorama_url)
-    json.loads(dorama_url)
-
-    dorama_text = dorama_url
+# def dorama_url_get():
+#     # url_1 = "https://v.qq.com/channel/tv/list?filter_params=ifeature%3D-1%26iarea%3D814%26iyear%3D2023%26ipay%3D-1%26sort%3D75&page_id=channel_list_second_page"
+#     url = "https://pbaccess.video.qq.com/trpc.vector_layout.page_view.PageService/getPage?video_appid=3000010"
+#     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183'}
+#     cookies = {"Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
+#     Post_data = {
+#         'caller_id'
+#         :
+#             "3000010",
+#         "data_mode"
+#         :
+#             "default",
+#         "page_id":"100113",
+#         "page_type":"channel",
+#        "platform_id":"2", "user_mode": "defau"
+#     }
+#     dorama_url = requests.post(url=url,headers=headers,cookies=cookies,data=Post_data).text
+#
+#     print(dorama_url)
+#     json.loads(dorama_url)
+#
+#     dorama_text = dorama_url
 
 
 
@@ -152,24 +159,54 @@ def dorama_data_get():
         df = pd.DataFrame(alldata_list, columns=["title","description","tag","showDate", 'creators', "contributor", "page_url","img_url","time_length","hot_score"])
         df.to_csv("./爱奇艺数据/爱奇艺热播.csv")
         return alldata_list
-def TXvideourl_get():
-    url = "https://youku.com/channel/webtv/list?filter=type_%E7%94%B5%E8%A7%86%E5%89%A7_year_2023&spm=a2hja.14919748_WEBTV_JINGXUAN.drawer3.d_main_area_1"
-    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183', "Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
-    data = requests.get(url=url, headers=headers).text
-    obj = re.compile(r'<div class="videolist_container_inner">.*?<a class="aplus_exp aplus_clk" herf="(?P<url>.*?)"title="(?P<name>.*?)"target=.*?<img s' 
-                     r'rc="(?P<img_url>.*?)"',re.S)
-    res = obj.finditer(data)
-    for i in res:
-        print(i)
 
 
+# def TXvideourl_get():
+#     url = "https://youku.com/channel/webtv/list?filter=type_%E7%94%B5%E8%A7%86%E5%89%A7_year_2023&spm=a2hja.14919748_WEBTV_JINGXUAN.drawer3.d_main_area_1"
+#     # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183', "Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
+#     data = requests.get(url=url, headers=headers).text
+#     obj = re.compile(r'<div class="videolist_container_inner">.*?<a class="aplus_exp aplus_clk" herf="(?P<url>.*?)"title="(?P<name>.*?)"target=.*?<img s'
+#                      r'rc="(?P<img_url>.*?)"',re.S)
+#     res = obj.finditer(data)
+#     for i in res:
+#         print(i)
 
+
+def youku():
+    print(1)
+    TV_Data = []
+    driver = webdriver.Chrome(executable_path="./chromedriver.exe")
+    print(1)
+    driver.get("https://www.youku.com/channel/webtv/list?filter=type_%E7%94%B5%E8%A7%86%E5%89%A7_year_2023&spm=a2hja.14919748_WEBTV_JINGXUAN.drawer3.d_sort_1")
+    css_selectors = ["#app > div.app_normal.window > div.modulelist_s_body > div.videolist_s_body > div > div > div:nth-child(4) > div > div:nth-child({}) > div > div > div.categorypack_info_list > div.categorypack_title.categorypack_short_title > a".format(str(i)) for i in range(41)]
+    for css_selector in css_selectors:
+        print("1")
+        if css_selector == "#app > div.app_normal.window > div.modulelist_s_body > div.videolist_s_body > div > div > div:nth-child(4) > div > div:nth-child(0) > div > div > div.categorypack_info_list > div.categorypack_title.categorypack_short_title > a":
+            pass
+        else:
+            time.sleep(1)
+            title = driver.find_element_by_css_selector(css_selector)
+            titles = title.get_attribute('title')
+            url = (title.get_attribute('href'))
+            options = webdriver.ChromeOptions()
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            driver = webdriver.Chrome(options = options)
+            driver.get(url)
+            type = driver.find_element_by_css_selector("#app > div > div.play-top-container-new > div.l-container-new > div > div > div.listbox-new > div.right-wrap > div.contents-wrap.contentsNode > div.new-title-wrap > div.new-title-feature > span:nth-child(3)")
+            comment = driver.find_element_by_css_selector("#tabsNode > p:nth-child(2) > span")
+            fav = driver.find_element_by_css_selector("#app > div > div.play-top-container-new > div.l-container-new > div > div > div.play-paction-wrap-new > div.nav-mamu-new > ul > li.play-fn-li.fn-dianzan > a > span.fav-text")
+            collect = driver.find_element_by_css_selector("#app > div > div.play-top-container-new > div.l-container-new > div > div > div.play-paction-wrap-new > div.nav-mamu-new > ul > li.play-fn-li.fn-shoucang > a > span.fav-text")
+            intro = driver.find_element_by_css_selector("#app > div > div.play-top-container-new > div.l-container-new > div > div > div.listbox-new > div.right-wrap > div.contents-wrap.contentsNode > div.new-title-wrap > div.new-title-feature > p")
+            driver.execute_script("arguments[0].click();", intro)
+            introduction = driver.find_element_by_css_selector("#app > div > div.play-top-container-new > div.l-container-new > div > div > div.listbox-new > div.right-wrap > div.new-intro-wrap > div > div.new-intro-detail > div:nth-child(2)")
+            TV_Data.append([titles,type,comment, fav, collect,introduction])
+            print(TV_Data)
+    pd.DataFrame(TV_Data).to_csv("./youku_data.csv")
 
 
 
 if __name__ == "__main__":
     # dorama_url_get()
-    # dorama_data_get()
     # TXvideourl_get()
     # dorama_url_get()
     # Iqiyi("&", pinglun_data)
