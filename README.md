@@ -16,7 +16,7 @@
 1. 克隆代码到本地
 
    ```
-   git clone https://github.com/YinHan-Zhang/Mutual-AI
+  git clone https://github.com/YinHan-Zhang/Mutual-AI](https://github.com/sizhouLiu/2023-TV-series-data-analysis.git
    ```
 
 2. 安装依赖
