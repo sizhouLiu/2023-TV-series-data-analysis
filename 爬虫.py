@@ -53,12 +53,18 @@ def dorama_url_get():
     url = "https://pbaccess.video.qq.com/trpc.vector_layout.page_view.PageService/getPage?video_appid=3000010"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183'}
     cookies = {"Cookie":"pgv_pvid=184197000; RK=S20sAhgAH/; ptcz=77015465c8b1c3cf6c05b8fd49727f783a61aca766fa4ffaf42994df2f8236d8; pac_uid=1_1214602074; iip=0; eas_sid=a1X6I9n0F1U1w041v3s6K6r9C1; qq_domain_video_guid_verify=4cccd06f254eab04; video_platform=2; video_guid=4cccd06f254eab04; pgv_info=ssid=s5322851164; o_cookie=1214602074; vversion_name=8.2.95; video_omgid=4cccd06f254eab04; _video_qq_login_time_init=1690377511; qz_gdt=seq4czadaaaimuaejdja; login_time_last=2023-7-26 21:37:26"}
-    dorama_url = requests.post(url=url,headers=headers,cookies=cookies,params={"page_params":{
-  "page_id": "100113",
-  "page_type": "channel",
-  "skip_privacy_types": "0",
-  "ad-through-tag": ""
-}}).text
+    Post_data = {
+        'caller_id'
+        :
+            "3000010",
+        "data_mode"
+        :
+            "default",
+        "page_id":"100113",
+        "page_type":"channel",
+       "platform_id":"2", "user_mode": "defau"
+    }
+    dorama_url = requests.post(url=url,headers=headers,cookies=cookies,data=Post_data).text
 
     print(dorama_url)
     json.loads(dorama_url)
@@ -168,11 +174,10 @@ def TXvideourl_get():
 
 
 if __name__ == "__main__":
-    # dorama_url_get()
-    # dorama_data_get()
+    dorama_url_get()
     # TXvideourl_get()
     # dorama_url_get()
     # Iqiyi("&", pinglun_data)
-    dorama_data_get()
+    # dorama_data_get()
 
 
