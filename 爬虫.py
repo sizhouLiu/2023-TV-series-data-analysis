@@ -77,15 +77,19 @@ def get_danmu():
 pinglun_data = []
 
 
-def Iqiyi(last_id, pinglun_data):
+def Iqiyi(content_id,pinglun_data,last_id='&'):
     '''
 
     :param last_id:评论的最后一个id在接口请求中能够看到
     :param pinglun_data: 存放数据的list
     :return: 无return值 保存为一个csv文件
     '''
+
+    # https: // sns - comment.iqiyi.com / v3 / comment / get_baseline_comments.action?agent_type = 118 & agent_version = 9.11
+    # .5 & authcookie = null & business_type = 17 & channel_id = 2 & content_id = 8010127344745600 & last_id = & need_vote = 1 & page_size = 10 & qyid = e5debc58fe819b25ca6de2fe991d92cc & sort = HOT & tail_num = 1 & callback = jsonp_1690944202555_34284
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
-    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id=7276947759884200&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690506592425_29304"
+    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id={content_id}&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=TIMEDESC&tail_num=1&callback=jsonp_1690948653064_72360"
+    print(url)
     Iqiyi_get = requests.get(url,headers=headers)
     # 获取的数据被js外边包了一个壳 需要对数据进行处理后才能被json.loads解析
     u1 = '{'+Iqiyi_get.text.lstrip('try{ jsonp_16904544092779_86397(').rstrip('}) }catch(e){};')+'}}' #删除获取json的外壳
@@ -94,22 +98,21 @@ def Iqiyi(last_id, pinglun_data):
     for comment in json_data:
         print(comment["id"])
         if 'content' in comment.keys():
-            pinglun_data.append(comment['content'])
+            pinglun_data.append([comment['content'],comment["userInfo"]["uname"]])
         #更新last_id
-        last_id = comment['id']
+        last_id = comment["id"]
     print(len(pinglun_data))
 
 
-    if len(pinglun_data) < 1000 :
-        time.sleep(0.5)
-        Iqiyi(last_id, pinglun_data)
-        # 递归
 
+    if len(pinglun_data) < 5000:
+        time.sleep(0.5)
+        Iqiyi(content_id,pinglun_data,last_id)
+        # 递归
     else:
-        return
+        pd.DataFrame(pinglun_data).to_csv("pinglun3.csv",mode="a")
+        return pinglun_data
     # 保存为csv
-    df = pd.DataFrame(pinglun_data)
-    df.to_csv('./pinglun_1.csv')
 
 
 def dorama_data_get():
@@ -209,7 +212,8 @@ if __name__ == "__main__":
     # dorama_url_get()
     # TXvideourl_get()
     # dorama_url_get()
-    # Iqiyi("&", pinglun_data)
-    dorama_data_get()
+    Iqiyi("4316153616087800", pinglun_data,"4130853309001821")
+    # dorama_data_get()
+
 
 
