@@ -88,7 +88,8 @@ def Iqiyi(content_id,pinglun_data,last_id='&'):
     # https: // sns - comment.iqiyi.com / v3 / comment / get_baseline_comments.action?agent_type = 118 & agent_version = 9.11
     # .5 & authcookie = null & business_type = 17 & channel_id = 2 & content_id = 8010127344745600 & last_id = & need_vote = 1 & page_size = 10 & qyid = e5debc58fe819b25ca6de2fe991d92cc & sort = HOT & tail_num = 1 & callback = jsonp_1690944202555_34284
     headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
-    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id={content_id}&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=TIMEDESC&tail_num=1&callback=jsonp_1690948653064_72360"
+    sort=["TIMEDESC","HOT"]
+    url =f"https://sns-comment.iqiyi.com/v3/comment/get_baseline_comments.action?agent_type=118&agent_version=9.11.5&authcookie=null&business_type=17&channel_id=2&content_id={content_id}&last_id={last_id}&need_vote=1&page=NaN&page_size=40&qyid=e5debc58fe819b25ca6de2fe991d92cc&sort=HOT&tail_num=1&callback=jsonp_1690948653064_72360"
     print(url)
     Iqiyi_get = requests.get(url,headers=headers)
     # 获取的数据被js外边包了一个壳 需要对数据进行处理后才能被json.loads解析
@@ -105,12 +106,12 @@ def Iqiyi(content_id,pinglun_data,last_id='&'):
 
 
 
-    if len(pinglun_data) < 5000:
+    if len(pinglun_data) < 800:
         time.sleep(0.5)
         Iqiyi(content_id,pinglun_data,last_id)
         # 递归
     else:
-        pd.DataFrame(pinglun_data).to_csv("pinglun3.csv",mode="a")
+        pd.DataFrame(pinglun_data).to_csv("理科生坠入情网.csv",mode="a")
         return pinglun_data
     # 保存为csv
 
@@ -212,7 +213,7 @@ if __name__ == "__main__":
     # dorama_url_get()
     # TXvideourl_get()
     # dorama_url_get()
-    Iqiyi("4316153616087800", pinglun_data,"4130853309001821")
+    Iqiyi("4892910860430400", pinglun_data)
     # dorama_data_get()
 
 
