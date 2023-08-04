@@ -57,7 +57,7 @@ def Iqiyi(name, content_id,last_id='&'):
     :return: 无return值 保存为一个csv文件
     '''
     pinglun_data = []
-    while len(pinglun_data) < 800:
+    while len(pinglun_data) < 200:
         time.sleep(0.5)
         headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"}
         sort=["TIMEDESC","HOT"]
